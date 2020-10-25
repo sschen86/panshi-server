@@ -13,4 +13,7 @@ export default {
   project,
   category,
   api,
+  '(.*.*)': async function all (ctx, next) {
+    ctx.body = { code: 404, message: '接口未定义' }
+  },
 }

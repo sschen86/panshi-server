@@ -3,5 +3,6 @@ module.exports = {
   server: {
     port: 444,
     static: './static',
+    fallback: true,
   },
 }

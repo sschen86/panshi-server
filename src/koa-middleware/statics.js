@@ -10,17 +10,13 @@ const sendConfig = {
 export default async function (ctx, next) {
   const path = ctx.path
   if (/^\/(openapi|mockapi)\//.test(path)) {
-    await next()
+    return await next()
   }
 
   await send(ctx, path, sendConfig).catch(err => {
     if (err.code === 'ENOENT' && err.status === 404) {
-      if (path !== '/') {
-        ctx.redirect('/')
-      } else {
-        ctx.status = 404
-        ctx.body = 'Not Fount'
-      }
+      ctx.status = 404
+      ctx.body = 'Not Fount'
     }
   })
 }

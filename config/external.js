@@ -8,7 +8,6 @@ export default (id, parentId) => {
   return false
 }
 
-
 const external = [
   '@koa/router',
   '@shushu.pro/datax',
@@ -23,4 +22,7 @@ const external = [
   'path-to-regexp',
   'sqlite',
   'sqlite3',
+  'koa2-connect-history-api-fallback',
+  'fs',
+  'path',
 ]
