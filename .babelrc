@@ -1,0 +1,21 @@
+{
+    "presets": [
+        "@babel/preset-env"
+    ],
+    "plugins": [
+        [
+            "module-resolver",
+            {
+                "root": [
+                    "./"
+                ],
+                "alias": {
+                    "@": "./src",
+                    "@db": "./src/db",
+                    "@panshirc": "./panshirc",
+                    "underscore": "lodash"
+                }
+            }
+        ]
+    ]
+}
