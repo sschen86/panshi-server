@@ -69,7 +69,7 @@ export default {
 
     // node(),
     // nodeGlobals(),
-    terser(),
+    // terser(),
   ],
   external,
 }

@@ -1,4 +1,7 @@
 module.exports = {
   dbpath: './db/data.db',
-  port: 1024,
+  server: {
+    port: 444,
+    static: './static',
+  },
 }

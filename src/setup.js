@@ -1,9 +1,9 @@
-import RC from '../panshirc'
+import config from './config'
 import { run, exec } from './db'
 import fs from 'fs-extra'
 import md5 from 'md5'
 
-const DB_PATH = RC.dbpath
+const DB_PATH = config.dbpath
 
 setup()
   .then(() => {

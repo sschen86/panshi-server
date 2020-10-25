@@ -1,7 +1,7 @@
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 
-import RC from '../../panshirc'
+import RC from '../config'
 let db = null
 let dbpath = RC.dbpath
 
