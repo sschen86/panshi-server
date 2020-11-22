@@ -22,6 +22,9 @@ async function setup () {
   await fs.ensureFile(DB_PATH)
   await createUserTable()
   console.warn('用户表创建成功')
+  await createUserRoleTable()
+  console.warn('用户角色表创建成功')
+
   await createProjectTable()
   console.warn('项目表创建成功')
   await createProjectFavorateTable()
@@ -32,6 +35,23 @@ async function setup () {
   console.warn('接口表创建成功')
   await createApiHistoryTable()
   console.warn('接口历史表创建成功')
+
+  await creaateModuleTable()
+  console.warn('模块表创建成功')
+
+  await createModuleFunctionGroupTable()
+  console.warn('模块功能分组表创建成功')
+
+  await createModuleFunctionTable()
+  console.warn('模块功能表创建成功')
+
+  await createRoleTable()
+  console.warn('角色表创建成功')
+
+  await createRolePermissionTable()
+  console.warn('角色权限表创建成功')
+
+
   await createAdminAccount()
   console.warn('管理员账号创建成功')
 }
@@ -47,7 +67,8 @@ async function createUserTable () {
             createTime  TIMESTAMP       DEFAULT (datetime('now', 'localtime')),
             lastLoginTime INTEGER           ,
             lastLoginIp     CHAR(16)        ,
-            role           INTEGER      DEFAULT 0 --  0:VIEWER 1:DEVELOPER 2:ADMIN --                  
+            role           INTEGER      DEFAULT 0, --  0:VIEWER 1:DEVELOPER 2:ADMIN --                  
+            enabled       INTEGER      DEFAULT 1 --  0:禁用 1:启用 --                  
         )
     `)
 }
@@ -132,6 +153,75 @@ async function createAdminAccount () {
         VALUES ('admin', '超级管理员', '${md5('123456')}', ${Date.now()}, 2)
     `)
 }
+
+async function creaateModuleTable () {
+  return exec(`
+    CREATE TABLE module (
+      "id"      INTEGER           PRIMARY KEY AUTOINCREMENT NOT NULL,
+      "symbol"  TEXT(128),
+      "label"  TEXT(32),
+      UNIQUE ("label"),
+      UNIQUE ("symbol")
+    )
+  `)
+}
+
+async function createModuleFunctionGroupTable () {
+  return exec(`
+    CREATE TABLE moduleFunctionGroup (
+      "id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      "label"  TEXT(32) NOT NULL,
+      "symbol"  TEXT(128) NOT NULL,
+      "moduleId"  INTEGER NOT NULL,
+      "parentId"  INTEGER,
+      UNIQUE ("moduleId" ASC, "parentId" ASC, "symbol" ASC)
+    )
+  `)
+}
+
+async function createModuleFunctionTable () {
+  return exec(`
+  CREATE TABLE moduleFunction (
+    "id"            INTEGER           PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "label"         TEXT(32)          NOT NULL,
+    "symbol"         TEXT(128)          NOT NULL,
+    "moduleId"      INTEGER           NOT NULL,
+    "groupId"       INTEGER           NOT NULL,
+    UNIQUE ("moduleId", "symbol")
+  )
+`)
+}
+
+async function createRoleTable () {
+  return exec(`
+  CREATE TABLE role (
+    "id"            INTEGER           PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "label"         TEXT(32)          NOT NULL
+  )
+`)
+}
+
+async function createRolePermissionTable () {
+  return exec(`
+  CREATE TABLE rolePermission (
+    "id"            INTEGER           PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "roleId"  INTEGER NOT NULL,
+    "moduleFunctionId"  INTEGER NOT NULL
+  )
+`)
+}
+
+
+async function createUserRoleTable () {
+  return exec(`
+    CREATE TABLE userRole (
+      "userId"  INTEGER NOT NULL,
+      "roleId"  INTEGER NOT NULL,
+      UNIQUE ("userId", "roleId")
+    )
+  `)
+}
+
 /*
 user {
     id

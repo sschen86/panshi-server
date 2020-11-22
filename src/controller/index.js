@@ -54,9 +54,27 @@ function catchError (handler) {
   return async (ctx, next) => {
     try {
       return await handler(ctx, next)
-    } catch (err) {
-      console.log(err.message)
-      ctx.body = { code: 500, message: '服务器处理异常' }
+    } catch ({ message }) {
+      // eslint-disable-next-line no-console
+      console.log(message)
+
+      switch (message) {
+        case 'SQLITE_CONSTRAINT: UNIQUE constraint failed: module.symbol': {
+          return ctx.body = { code: 500, message: '模块标识重复' }
+        }
+        case 'SQLITE_CONSTRAINT: UNIQUE constraint failed: module.label': {
+          return ctx.body = { code: 500, message: '模块名称重复' }
+        }
+        case 'SQLITE_CONSTRAINT: UNIQUE constraint failed: moduleFunctionGroup.moduleId, moduleFunctionGroup.parentId, moduleFunctionGroup.symbol': {
+          return ctx.body = { code: 500, message: '分组标识重复' }
+        }
+      }
+
+      if (/^SQLITE_/.test(message)) {
+        ctx.body = { code: 500, message: '服务器处理异常' }
+      } else {
+        ctx.body = { code: 500, message }
+      }
     }
   }
 }

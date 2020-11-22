@@ -2,6 +2,7 @@ import user from './user'
 import project from './project'
 import category from './category'
 import api from './api'
+import module from './module'
 
 export default {
   '(.*)': async function all (ctx, next) {
@@ -13,6 +14,7 @@ export default {
   project,
   category,
   api,
+  module,
   '(.*.*)': async function all (ctx, next) {
     ctx.body = { code: 404, message: '接口未定义' }
   },
