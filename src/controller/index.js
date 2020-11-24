@@ -2,6 +2,46 @@ import Router from '@koa/router'
 import openapi from './openapi'
 import mockapi from './mockapi'
 
+import xiniu from '@/package/xiniu/'
+
+const loginIgnore = [ '/openapi/user/project/list' ].map(item => {
+  if (typeof item === 'string') {
+    return { method: 'GET', url: item }
+  } else {
+    return item
+  }
+})
+
+const nextRoutes = xiniu({
+  baseURL: '/',
+  routes: {
+    openapi,
+    mockapi,
+  },
+  request ({ ctx, route, params, session, throwError }) {
+    const { method, url } = ctx.request
+
+
+    // 不在登录白名单并且未登录
+    if (!loginIgnore.some(item => {
+      return item.method === method && item.url === url
+    }) && !session.userId) {
+      throwError('用户未登录', 505)
+    }
+  },
+  response (event) {
+
+  },
+  success (event) {
+
+  },
+  failure (event) {
+
+  },
+})
+// console.info({ nextRoutes })
+
+
 const router = new Router({ prefix: '/' })
 const TYPES = {
   CHILDREN_EXPAND: 1, // 继续展开子级
@@ -9,9 +49,10 @@ const TYPES = {
   PATH_POP: 3, // 弹出路径
 }
 
-loadRoutes({ openapi, mockapi })
+// loadRoutes({ openapi, mockapi })
 
-export default router.routes()
+// export default router.routes()
+export default nextRoutes
 
 function loadRoutes (config) {
   const queue = Object.keys(config).map(key => ({ type: TYPES.CHILDREN_EXPAND, key, children: config[key] }))
@@ -37,7 +78,7 @@ function loadRoutes (config) {
       }
 
       case TYPES.ROUTE_ADD: {
-        router[method](paths.concat(key).join('/'), catchError(handler))
+        router[method](paths.concat(key).join('/'), catchAuth(catchError(handler), config))
         break
       }
 
@@ -68,6 +109,9 @@ function catchError (handler) {
         case 'SQLITE_CONSTRAINT: UNIQUE constraint failed: moduleFunctionGroup.moduleId, moduleFunctionGroup.parentId, moduleFunctionGroup.symbol': {
           return ctx.body = { code: 500, message: '分组标识重复' }
         }
+        case 'SQLITE_CONSTRAINT: UNIQUE constraint failed: moduleFunction.moduleId, moduleFunction.symbol': {
+          return ctx.body = { code: 500, message: '权限标识重复' }
+        }
       }
 
       if (/^SQLITE_/.test(message)) {
@@ -76,5 +120,13 @@ function catchError (handler) {
         ctx.body = { code: 500, message }
       }
     }
+  }
+}
+
+// 权限拦截器
+function catchAuth (handler, config) {
+  return async (ctx, next) => {
+    console.info({ ctx, config })
+    return handler(ctx, next)
   }
 }

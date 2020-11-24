@@ -187,7 +187,7 @@ async function createModuleFunctionTable () {
     "symbol"         TEXT(128)          NOT NULL,
     "moduleId"      INTEGER           NOT NULL,
     "groupId"       INTEGER           NOT NULL,
-    UNIQUE ("moduleId", "symbol")
+    UNIQUE ("groupId", "symbol")
   )
 `)
 }
@@ -206,7 +206,8 @@ async function createRolePermissionTable () {
   CREATE TABLE rolePermission (
     "id"            INTEGER           PRIMARY KEY AUTOINCREMENT NOT NULL,
     "roleId"  INTEGER NOT NULL,
-    "moduleFunctionId"  INTEGER NOT NULL
+    "moduleFunctionId"  INTEGER NOT NULL,
+    UNIQUE ("roleId" ASC, "moduleFunctionId" ASC)
   )
 `)
 }

@@ -30,6 +30,7 @@ export default {
     const sqlExpression = [
       'BEGIN;',
       `DELETE FROM user WHERE id=${id};`, // 删除用户
+      `DELETE FROM userRole WHERE userId=${id};`, // 解除角色关联
     ]
 
     sqlExpression.push('COMMIT;')
@@ -86,5 +87,39 @@ export default {
     await run(`
         DELETE FROM projectFavorite WHERE userId = ${userId} AND projectId = ${projectId}
     `)
+  },
+
+  role: {
+    async list ({ id }) {
+      return (await all(`
+        SELECT roleId FROM userRole
+        WHERE userId=${id}
+      `)).map(item => item.roleId)
+    },
+    async modify ({ id, roles }) {
+      const sqlExpression = [
+        'BEGIN;',
+      ]
+
+      if (roles.length === 0) {
+        sqlExpression.push(`
+          DELETE FROM userRole WHERE userId=${id};
+        `)
+      } else {
+        sqlExpression.push(`
+          DELETE FROM userRole WHERE userId NOT IN (${roles.join(',')});
+        `)
+        sqlExpression.push(...roles.map((roleId) => {
+          return `
+            INSERT INTO userRole (userId, roleId)
+            VALUES (${id}, ${roleId});
+          `
+        }))
+      }
+
+      sqlExpression.push('COMMIT;')
+      // console.info(sqlExpression.join('\n'))
+      await exec(sqlExpression.join('\n'))
+    },
   },
 }

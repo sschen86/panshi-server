@@ -30,6 +30,9 @@ export default {
 
   functionGroup: {
     async list ({ id }) {
+      if (!id) {
+        return all(' SELECT * FROM moduleFunctionGroup')
+      }
       const list = await all(`
         SELECT * FROM moduleFunctionGroup WHERE moduleId=${id}
       `)
@@ -64,10 +67,17 @@ export default {
       // console.info(sqlExpression.join('\n'))
       await exec(sqlExpression.join('\n'))
     },
+
+    async modify ({ id, label, symbol }) {
+      await update('moduleFunctionGroup', { label, symbol }, `WHERE id = ${id}`)
+    },
   },
 
   function: {
     async list ({ id }) {
+      if (!id) {
+        return all(' SELECT * FROM moduleFunction')
+      }
       const list = await all(`
         SELECT * FROM moduleFunction WHERE moduleId=${id}
       `)
@@ -77,6 +87,20 @@ export default {
       await insert('moduleFunction', {
         moduleId, groupId, label, symbol,
       })
+    },
+    async delete ({ id }) {
+      // TODO:在角色中，则禁止删除
+
+      const sqlExpression = [
+        'BEGIN;',
+        `DELETE FROM moduleFunction WHERE id=${id};`,
+      ]
+      sqlExpression.push('COMMIT;')
+      await exec(sqlExpression.join('\n'))
+    },
+
+    async modify ({ id, label, symbol }) {
+      await update('moduleFunction', { label, symbol }, `WHERE id = ${id}`)
     },
   },
 

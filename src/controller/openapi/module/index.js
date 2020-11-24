@@ -36,6 +36,11 @@ export default {
       await module.functionGroup.delete({ id })
       ctx.body = { code: 0 }
     },
+    modify: async function post (ctx) {
+      const { id, label, symbol } = ctx.request.body
+      await module.functionGroup.modify({ id, label, symbol })
+      ctx.body = { code: 0 }
+    },
   },
 
   function: {
@@ -47,6 +52,16 @@ export default {
     create: async function post (ctx) {
       const { moduleId, groupId, label, symbol } = ctx.request.body
       await module.function.create({ moduleId, groupId, label, symbol })
+      ctx.body = { code: 0 }
+    },
+    delete: async function post (ctx) {
+      const { id } = ctx.request.body
+      await module.function.delete({ id })
+      ctx.body = { code: 0 }
+    },
+    modify: async function post (ctx) {
+      const { id, label, symbol } = ctx.request.body
+      await module.function.modify({ id, label, symbol })
       ctx.body = { code: 0 }
     },
   },

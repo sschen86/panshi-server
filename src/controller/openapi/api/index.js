@@ -8,6 +8,20 @@ export default {
     ctx.body = { code: 0, data }
   },
 
+  // list2: {
+  //   async dispatcher ({query, body,ctx }) {
+  //     return api.list({page, pageSize})
+  //   },
+  //   method: 'get',
+  //   auth: [ 'xxx' ],
+  //   requestAdapter: {
+
+  //   },
+  //   responseAdapter: {
+
+  //   },
+  // },
+
   // 创建接口
   create: async function post (ctx) {
     try {
