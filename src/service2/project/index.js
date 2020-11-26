@@ -1,37 +1,10 @@
 import { all, get, insert, update } from '@db'
 
 export default {
-  // 获取项目列表
-  async list ({ page, pageSize }) {
-    return all(`
-        SELECT * FROM project
-    `)
-  },
+
 
   // 创建项目
-  async  create ({ name, description, userId }) {
-    await insert('project', {
-      name, description, createTime: Date.now(),
-    })
 
-    const { projectId } = await get('SELECT last_insert_rowid() as projectId  FROM project')
-
-    await insert('projectFavorite', {
-      projectId, userId,
-    })
-  },
-
-  // 修改
-  async  modify ({ id, name, description }) {
-    await update('project', { id, name, description }, `WHERE id = ${id}`)
-  },
-
-  // 项目详情
-  async detail ({ projectId }) {
-    return get(`
-      SELECT * FROM project WHERE id = ${projectId}
-    `)
-  },
 
   async apis ({ projectId }) {
     const rs = await all(`

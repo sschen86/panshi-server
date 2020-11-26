@@ -1,4 +1,5 @@
 import Router from '@koa/router'
+import Event from './Event'
 import { match } from 'path-to-regexp'
 
 export default xiniu
@@ -13,6 +14,7 @@ function xiniu ({ baseURL = '/', routes, authAccept, request, response, success,
     }
 
     const { method, path, dispatcher, auths } = route
+    // console.info({ path })
     router[method](path,
       allIntercepter(
         authIntercepter(dispatcher, authAccept, auths),
@@ -109,6 +111,7 @@ function authIntercepter (dispatcher, authAccept, auths) {
 
 function allIntercepter (dispatcher, { request, response, success, failure, route }) {
   return async (ctx, next) => {
+    // console.info({ route })
     const event = new Event({ route, ctx, next })
 
     await Promise.resolve()
@@ -130,7 +133,6 @@ function allIntercepter (dispatcher, { request, response, success, failure, rout
         }
       })
       .catch((err) => {
-        console.info('catchError', err)
         event.setError(err)
         if (typeof failure === 'function') {
           failure(event)
@@ -138,6 +140,7 @@ function allIntercepter (dispatcher, { request, response, success, failure, rout
       })
 
     if (event.error) {
+      console.error(event.error)
       const { code = 500, message = '服务器处理异常' } = event.error
       return ctx.body = { code, message }
     }
@@ -146,40 +149,4 @@ function allIntercepter (dispatcher, { request, response, success, failure, rout
       return ctx.body = { code: 0, data: event.data }
     }
   }
-}
-
-function Event ({ route, ctx, next }) {
-  this.route = route
-  this.ctx = ctx
-  this.next = next
-  this.data = null
-  this.error = null
-  this.body = ctx.request.body
-  this.query = ctx.request.query
-  this.session = ctx.session
-  this.params = route.pathMatch(ctx.request.url).params
-}
-
-Event.prototype = {
-  constructor: Event,
-  setBody (body) {
-    this.body = body
-  },
-  setQuery (query) {
-    this.query = typeof query === 'function' ? query(this.query) : query
-  },
-  setData (data) {
-    this.error = null
-    this.data = typeof data === 'function' ? data(this.data) : data
-  },
-  setError (error) {
-    this.error = typeof error === 'string' ? Error(error) : error
-  },
-  throwError (error, code) {
-    error = typeof error === 'string' ? Error(error) : error
-    if (code) {
-      error.code = code
-    }
-    throw error
-  },
 }

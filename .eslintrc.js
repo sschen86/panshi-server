@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   extends: '@shushu.pro/all',
+  parser: 'babel-eslint',
   env: {
     jest: true,
     node: true,

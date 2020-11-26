@@ -25,7 +25,7 @@ async function setup () {
   await createUserRoleTable()
   console.warn('用户角色表创建成功')
 
-  await createProjectTable()
+  await createAppTable()
   console.warn('项目表创建成功')
   await createProjectFavorateTable()
   console.warn('项目关注表创建成功')
@@ -60,7 +60,7 @@ async function createUserTable () {
   return exec(`
         CREATE TABLE user (
             id      INTEGER          PRIMARY KEY    AUTOINCREMENT  NOT NULL,
-            name    CHAR(64)                    NOT NULL UNIQUE,
+            user    CHAR(64)                    NOT NULL UNIQUE,
             nick    CHAR(64)                        NOT NULL UNIQUE,
             password    CHAR(32)                    NOT NULL,
             avatar   CHAR(64)    ,
@@ -68,21 +68,35 @@ async function createUserTable () {
             lastLoginTime INTEGER           ,
             lastLoginIp     CHAR(16)        ,
             role           INTEGER      DEFAULT 0, --  0:VIEWER 1:DEVELOPER 2:ADMIN --                  
-            enabled       INTEGER      DEFAULT 1 --  0:禁用 1:启用 --                  
+            enabled       INTEGER      DEFAULT 1, --  0:禁用 1:启用 --
+            UNIQUE ("user" ASC),
+            UNIQUE ("nick" ASC)                  
         )
     `)
 }
 
-async function createProjectTable () {
+async function createAppTable () {
   return exec(`
-        CREATE TABLE project (
-            id      INTEGER          PRIMARY KEY    AUTOINCREMENT  NOT NULL,
-            name    CHAR(64)                    NOT NULL,
-            avatar   CHAR(64)    ,
-            description   CHAR(128) ,
-            createTime      INTEGER NOT NULL
-        )
-    `)
+  CREATE TABLE app (
+      "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "name" CHAR(64) NOT NULL,
+      "avatar" CHAR(64),
+      "description" CHAR(128),
+      "createUserId" integer,
+      "createTime" INTEGER NOT NULL,
+      UNIQUE ("name" ASC)
+    )
+  `)
+}
+
+async function createAppMemberTable () {
+  return exec(`
+    CREATE TABLE appMember (
+      "appId" INTEGER NOT NULL,
+      "userId" INTEGER NOT NULL,
+      UNIQUE ("appId", "userId")
+    );
+  `)
 }
 
 async function createProjectFavorateTable () {

@@ -59,6 +59,21 @@ export async function insert (tableName, data) {
   return await run(sqlExpression)
 }
 
+export async function list ({ tableName, keys = '*', filters, page = 1, pageSize }) {
+  const condition = []
+  if (filters) {
+    for (const key in filters) {
+      if (filters[key] !== undefined) {
+        condition.push(`${key}=${filters[key]}`)
+      }
+    }
+  }
+
+  const conditionExpression = condition.length ? ` WHERE ${condition.join(' AND ')};` : ';'
+  const sqlExpression = `SELECT ${keys} FROM ${tableName}${conditionExpression}`
+
+  return { list: await all(sqlExpression) }
+}
 
 /// UPDATE table_name
 /// SET column1 = value1, column2 = value2...., columnN = valueN

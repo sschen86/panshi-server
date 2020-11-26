@@ -1,6 +1,6 @@
 import user from './user'
-import manager from './manager'
-import app from './app'
+import permission from './permission'
+// import manage from './manage'
 // import role from './role'
 
 
@@ -17,8 +17,11 @@ export default {
   },
 
   user,
-  manager,
-  app,
+  permission,
+
+  //   manage,
+  //   role,
+  //   user,
 
   // 404拦截
   '(.*.*)': {

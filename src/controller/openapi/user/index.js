@@ -1,90 +1,143 @@
-import user from '@/service/user'
 import mockv from '@shushu.pro/mockv'
 import md5 from 'md5'
+import user from '@/service/user'
 
 export default {
 
-  login: async function post ({ body, session }) {
-    const { user: userName, password } = body
-    const data = await user.login({ userName, password })
 
-    if (!data) {
-      throw Error('登录失败，请检查用户名或密码是否正确！')
-    }
+  login: {
+    method: 'post',
+    async dispatcher ({ body, session }) {
+      const { user: userId, password } = body
+      const data = await user.login({ userId, password })
 
-    session.userId = data.id
-    session.name = data.name
-
-    return data
-  },
-
-  project: {
-    list: async function get ({ query, ctx }) {
-      let { page = 1, pageSize = 20 } = query
-      if (!(page >= 1)) {
-        page = 1
+      if (!data) {
+        throw Error('登录失败，请检查用户名或密码是否正确！')
       }
-      if (pageSize > 100) {
-        pageSize = 100
-      }
-      const list = await user.getProjects({ userId: ctx.session.userId, page, pageSize })
-      return { list, page, pageSize }
+
+      session.userId = data.id
+      session.name = data.name
+
+      return data
     },
+    loginIgnore: true,
   },
 
+  // list: {
+  //   async dispatcher () {
+  //     return { list: await user.list() }
+  //   },
+  //   responseData: {
+  //     $strict: false,
+  //     list: {
+  //       createTime: '#time',
+  //     },
+  //   },
+  // },
 
-  favorite: {
-    project: {
-      add: async function post (ctx) {
-        await user.addFavoriteProject({ projectId: ctx.request.body.id, userId: ctx.session.userId })
-        ctx.body = { code: 0 }
-      },
-      remove: async function post (ctx) {
-        await user.removeFavoriteProject({ projectId: ctx.request.body.id, userId: ctx.session.userId })
-        ctx.body = { code: 0 }
-      },
-    },
-  },
-  create: async function post (ctx) {
-    const { name, nick } = ctx.request.body
-    const password = await user.create({ name, nick: nick || name })
-    ctx.body = { code: 0, data: { password } }
-  },
-  modify: async function post (ctx) {
-    const { id, nick } = ctx.request.body
-    await user.modify({ id, nick })
-    ctx.body = { code: 0 }
-  },
-  delete: async function post (ctx) {
-    const { id } = ctx.request.body
-    await user.delete({ id })
-    ctx.body = { code: 0 }
-  },
-  resetPassword: async function post (ctx) {
-    const { id } = ctx.request.body
-    const password = mockv.string(12)
-    await user.modify({ id, password: md5(password) })
-    ctx.body = { code: 0, data: { password } }
-  },
-  alls: async function get ({ ctx }) {
-    const data = await user.list({ page: ctx.query.page, pageSize: ctx.query.pageSize })
-    ctx.body = { code: 0, data: data }
-  },
-  enabled: async function post (ctx) {
-    const { id, enabled } = ctx.request.body
-    await user.modify({ id, enabled: Number(enabled) || 0 })
-    ctx.body = { code: 0 }
-  },
-  role: {
-    list: async function get (ctx) {
-      const { id } = ctx.request.query
-      const data = await user.role.list({ id })
-      ctx.body = { code: 0, data }
-    },
-    modify: async function post (ctx) {
-      const { id, roles } = ctx.request.body
-      await user.role.modify({ id, roles })
-      ctx.body = { code: 0 }
-    },
-  },
+  // async list () {
+
+  // },
+
+  // async detail () {
+
+  // },
+
+  // role: {
+  //   list: {
+  //     async dispatcher ({ session: { userId } }) {
+  //       return { list: await user.role.list({ userId }) }
+  //     },
+  //   },
+
+  //   // async modify () {
+
+  //   // },
+  // },
+
+  // async auths () {
+
+  // },
+
+  // app: {
+  //   async list () {
+
+  //   },
+
+  //   add: {
+  //     async apply () {
+
+  //     },
+  //   },
+
+  //   async remove () {
+
+  //   },
+  // },
+
+  // project: {
+  //   async list () {
+
+  //   },
+  // },
+
+  // favorite: {
+  //   api: {
+  //     async list () {
+
+  //     },
+  //   },
+  // },
+
+  // create: {
+  //   method: 'post',
+  //   async dispatcher ({ body: { name, nick } }) {
+  //     const password = await user.create({ name, nick: nick || name })
+  //     return { password }
+  //   },
+  // },
+
+  // modify: {
+  //   method: 'post',
+  //   async dispatcher ({ body: { id, nick } }) {
+  //     await user.modify({ id, nick })
+  //   },
+  // },
+
+  // password: {
+  //   async modify () {
+
+  //   },
+
+
+  // },
+
+  // password: {
+  //   reset: {
+  //     method: 'post',
+  //     async dispatcher ({ body: { id } }) {
+  //       const password = mockv.string(12)
+  //       await user.modify({ id, password: md5(password) })
+  //       return { password }
+  //     },
+  //   },
+  // },
+
+  // disabled: {
+  //   method: 'post',
+  //   async dispatcher ({ body: { id, enabled } }) {
+  //     await user.modify({ id, enabled })
+  //   },
+  //   requestData: {
+  //     id: true,
+  //     state: { $key: 'enabled', $value: (state) => Number(!state) },
+  //   },
+  // },
+
+  // delete: {
+  //   method: 'post',
+  //   async dispatcher ({ body: { id } }) {
+  //     await user.delete({ id })
+  //   },
+  // },
 }

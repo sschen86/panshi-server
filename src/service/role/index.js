@@ -1,12 +1,10 @@
-import { all, get, insert, update, exec } from '@db'
+import { all, get, insert, run, update, exec, list } from '@db'
 
 export default {
 
-  async list ({ page, pageSize }) {
-    const list = await all(`
-        SELECT * FROM role
-    `)
-    return { page, pageSize, total: 1, list }
+  async list ({ page, pageSize } = {}) {
+    const list = await all('SELECT * FROM role')
+    return { page, pageSize, total: list.length, list }
   },
 
   async  create ({ label }) {
@@ -33,18 +31,13 @@ export default {
     await update('role', { label }, `WHERE id = ${id}`)
   },
 
-  permission: {
+  function: {
     async list ({ id }) {
-      return all(`
+      const list = await all(`
         SELECT * FROM rolePermission
         WHERE rolePermission.roleId=${id}
       `)
-      // return all(`
-      //   SELECT * FROM rolePermission
-      //   LEFT OUTER JOIN role
-      //   ON rolePermission.roleId=role.id
-      //   WHERE rolePermission.roleId=${id}
-      // `)
+      return { list }
     },
     async modify ({ id, functionList }) {
       const deleteIds = functionList.filter(item => !item.enabled).map(item => item.id)
@@ -54,7 +47,6 @@ export default {
           VALUES (${id}, ${moduleFunctionId});
         `
       })
-
 
       const sqlExpression = [
         'BEGIN;',
@@ -71,4 +63,5 @@ export default {
       await exec(sqlExpression.join('\n'))
     },
   },
+
 }
