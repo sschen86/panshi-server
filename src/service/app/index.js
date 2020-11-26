@@ -1,4 +1,5 @@
-import { all, get, insert, update, exec } from '@db'
+import { all, get, insert, update, exec, list } from '@db'
+import { remove } from 'fs-extra'
 
 
 export default {
@@ -54,5 +55,60 @@ export default {
     await exec(sqlExpression.join('\n'))
   },
 
+  user: {
+    async list () {
+      return list({ tableName: 'user', keys: 'id, nick' })
+    },
+  },
+
+  member: {
+    async list ({ id }) {
+      const list = await all(`
+        SELECT
+          id,
+          user,
+          nick
+        FROM
+          appMember
+        LEFT OUTER JOIN user ON userId = user.id
+        WHERE
+          appId = ${id}
+      `)
+      return { list }
+      // return list({ tableName: 'appMember', keys: 'userId', filters: { id } })
+    },
+
+
+    async modify ({ appId, memberList }) {
+      const sqlExpression = [
+        'BEGIN;',
+      ]
+
+      if (memberList.length === 0) {
+        sqlExpression.push(`
+          DELETE FROM appMember WHERE appId=${appId};
+        `)
+      } else {
+        sqlExpression.push(`
+            DELETE FROM appMember WHERE userId NOT IN (${memberList.join(',')}) AND appId=${appId};
+          `)
+        sqlExpression.push(...memberList.map((userId) => {
+          return `
+              REPLACE INTO appMember (appId, userId)
+              VALUES (${appId}, ${userId});
+            `
+        }))
+      }
+
+      sqlExpression.push('COMMIT;')
+      // console.info(sqlExpression.join('\n'))
+
+      await exec(sqlExpression.join('\n'))
+    },
+
+    async remove ({ id }) {
+      await exec(`DELETE FROM appMember WHERE userId=${id};`)
+    },
+  },
 
 }

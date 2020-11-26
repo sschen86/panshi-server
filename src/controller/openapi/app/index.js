@@ -34,11 +34,33 @@ export default {
     },
   },
 
+  user: {
+    list: {
+      async dispatcher () {
+        return app.user.list()
+      },
+      responseData: {
+        list: {
+          id: 'value',
+          nick: 'label',
+        },
+      },
+    },
+  },
+
   member: {
+
+    list: {
+      async dispatcher ({ query: { id } }) {
+        return app.member.list({ id })
+      },
+    },
+
+
     modify: {
       method: 'post',
-      async dispatcher () {
-
+      async dispatcher ({ body: { appId, memberList } }) {
+        await app.member.modify({ appId, memberList })
       },
     },
 
@@ -48,6 +70,13 @@ export default {
         async dispatcher () {
 
         },
+      },
+    },
+
+    remove: {
+      method: 'post',
+      async dispatcher ({ body: { id } }) {
+        await app.member.remove({ id })
       },
     },
   },

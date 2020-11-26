@@ -44,8 +44,8 @@ export default {
             `)
       } else {
         sqlExpression.push(`
-              DELETE FROM userRole WHERE userId NOT IN (${roles.join(',')});
-            `)
+            DELETE FROM userRole WHERE roleId NOT IN (${roles.join(',')}) AND userId=${userId};
+          `)
         sqlExpression.push(...roles.map((roleId) => {
           return `
                 INSERT INTO userRole (userId, roleId)

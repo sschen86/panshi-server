@@ -29,7 +29,13 @@ export async function run () {
 }
 
 export async function exec () {
-  return (await getDb()).exec(...arguments)
+  const db = await getDb()
+  try {
+    return await db.exec(...arguments)
+  } catch (err) {
+    await db.exec('END TRANSACTION')
+    throw err
+  }
 }
 
 export async function close () {
