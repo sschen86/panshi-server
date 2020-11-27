@@ -1,6 +1,7 @@
 import { get, all, run, insert, exec, update } from '@db'
 import md5 from 'md5'
 import mockv from '@shushu.pro/mockv'
+import { remove } from 'fs-extra'
 
 export default {
   async login ({ userId, password }) {
@@ -101,6 +102,27 @@ export default {
     sqlExpression.push('COMMIT;')
     // console.info(sqlExpression.join('\n'))
     await exec(sqlExpression.join('\n'))
+  },
+
+  favorite: {
+    api: {
+      async enabled ({ userId, apiId }) {
+        const result = await get(`
+            SELECT userId FROM favoriteApi WHERE userId='${userId}' AND apiId='${apiId}'
+        `)
+        return !!result
+      },
+
+      async add ({ userId, apiId }) {
+        await insert('favoriteApi', {
+          apiId, userId,
+        })
+      },
+
+      async remove ({ userId, apiId }) {
+        await run(`DELETE FROM favoriteApi WHERE userId=${userId} AND apiId=${apiId}`)
+      },
+    },
   },
 
 }

@@ -29,7 +29,7 @@ async function setup () {
   console.warn('项目表创建成功')
   await createProjectFavorateTable()
   console.warn('项目关注表创建成功')
-  await createCategoryTable()
+  await createAppCategoryTable()
   console.warn('分类表创建成功')
   await createApiTable()
   console.warn('接口表创建成功')
@@ -110,18 +110,18 @@ async function createProjectFavorateTable () {
     `)
 }
 
-async function createCategoryTable () {
+async function createAppCategoryTable () {
   return exec(`
-        CREATE TABLE category (
-            id      INTEGER             PRIMARY KEY    AUTOINCREMENT  NOT NULL,
-            name    CHAR(64)            NOT NULL,
-            projectId   INTEGER         NOT NULL,
-            parentId    INTEGER,
-            prevId      INTEGER,
-            nextId      INTEGER,
-            createTime  TIMESTAMP       DEFAULT (datetime('now', 'localtime'))
-        )
-    `)
+    CREATE TABLE appCategory (
+      "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "name" CHAR(64) NOT NULL,
+      "appId" INTEGER NOT NULL,
+      "parentId" INTEGER,
+      "prevId" INTEGER,
+      "nextId" INTEGER,
+      "createTime" TIMESTAMP DEFAULT (datetime('now', 'localtime'))
+    )
+  `)
 }
 
 async function createApiTable () {

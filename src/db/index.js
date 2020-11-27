@@ -104,6 +104,7 @@ export async function update (tableName, data, condition = '') {
   await run(sqlExpression)
 }
 
+
 // 驼峰转下划线
 function uncamelize (str) {
   return str

@@ -1,4 +1,6 @@
+
 import app from '@/service/app'
+import api from '@/service/api'
 
 export default {
   list: {
@@ -82,12 +84,84 @@ export default {
   },
 
   api: {
-    create: {
-      method: 'post',
-      async dispatcher () {
-
+    list: {
+      async dispatcher ({ query: { appId } }) {
+        return api.list({ appId })
       },
     },
+
+    detail: {
+      async dispatcher ({ query: { id } }) {
+        return api.detail({ id, fully: true })
+      },
+    },
+
+    search: {
+      async dispatcher ({ query }) {
+        return api.detail(query)
+      },
+    },
+
+    create: {
+      method: 'post',
+      async dispatcher ({ body }) {
+        await api.create(body)
+      },
+    },
+
+    modify: {
+      method: 'post',
+      async dispatcher ({ body }) {
+        await api.modify(body)
+      },
+    },
+
+    delete: {
+      method: 'post',
+      async dispatcher ({ body }) {
+        await api.delete(body)
+      },
+    },
+
+
+  },
+
+  category: {
+    list: {
+      async dispatcher ({ query: { appId } }) {
+        return app.category.list({ appId })
+      },
+    },
+
+    create: {
+      method: 'post',
+      async dispatcher ({ body: { appId, name, parentId } }) {
+        await app.category.create({ appId, name, parentId })
+      },
+    },
+
+    delete: {
+      method: 'post',
+      async dispatcher ({ body: { id } }) {
+        await app.category.delete({ id })
+      },
+    },
+
+    move: {
+      method: 'post',
+      async dispatcher ({ body: { appId, targetId, selfId } }) {
+        await app.category.move({ appId, targetId, selfId })
+      },
+    },
+
+    modify: {
+      method: 'post',
+      async dispatcher ({ body: { id, name, parentId } }) {
+        await app.category.modify({ id, name, parentId })
+      },
+    },
+
+
   },
 
 }

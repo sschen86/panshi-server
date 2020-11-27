@@ -1,6 +1,6 @@
 import adapter from './adapter'
 import openapi from './openapi'
-// import mockapi from './mockapi'
+import mockapi from './mockapi'
 
 import xiniu from '@/package/xiniu/'
 
@@ -8,7 +8,7 @@ export default xiniu({
   baseURL: '/',
   routes: {
     openapi,
-    // mockapi,
+    mockapi,
   },
   request ({ route, session, throwError, setRequestData }) {
     // 非免登接口，非登录用户

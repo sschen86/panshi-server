@@ -5,15 +5,26 @@ import DataX from '@shushu.pro/datax'
 const METHOD_NUM = { GET: 0, POST: 1, PUT: 2, DELETE: 3, OPTION: 4 }
 
 export default {
-  ':projectId/(.*)': async function all (ctx, next) {
+  '(.*)': {
+    method: 'all',
+    loginIgnore: true,
+    async dispatcher ({ ctx, next }) {
+      ctx.session.userId = 1
+      ctx.session.name = 'admin'
+      await next()
+    },
+  },
+  ':appId/(.*)': async function all ({ ctx }) {
     const method = METHOD_NUM[ctx.method]
-    const { projectId, 0: path } = ctx.params
+    const { appId, 0: path } = ctx.params
 
-    if (!projectId) {
+    console.info(ctx.params)
+
+    if (!appId) {
       return ctx.body = { code: 500, message: '接口所在项目不存在' }
     }
 
-    const data = await api.match({ path: path, method, projectId })
+    const data = await api.match({ path: path, method, appId })
 
     if (data === undefined) {
       ctx.body = { code: 404, message: '接口未定义' }
@@ -25,11 +36,13 @@ export default {
     const responseData = DataX.parse(resData || '', { $query: query, $body: body, $header: header })
 
     if (responseData.$error) {
-      return ctx.body = { $error: responseData.$error.message }
+      return { $error: responseData.$error.message }
     }
-    ctx.body = responseData
+
+    return responseData
   },
-  '(.*)': async function all (ctx, next) {
-    ctx.body = { code: 404, message: '接口未定义' }
+
+  '(.*.*)': async function all ({ throwError }) {
+    throwError('接口未定义', 404)
   },
 }
