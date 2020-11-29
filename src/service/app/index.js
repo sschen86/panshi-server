@@ -1,5 +1,5 @@
 import { all, get, insert, update, exec, list, run } from '@db'
-import { remove } from 'fs-extra'
+import history from '@/service/history'
 
 
 export default {
@@ -218,7 +218,7 @@ export default {
       // `)
     },
 
-    async move ({ appId, targetId, selfId }) {
+    async move ({ appId, targetId, selfId, operator }) {
       // 获取self记录，取得变量self.id, self.prevId, self.nextId
       // 获取target记录，获取变量target.id, target.nextId
 
@@ -228,8 +228,6 @@ export default {
       // 变更self.nextId为target.nextId
       // 变更target.nextId为self.id
       // 变更target.next.prevId为self.id
-
-      console.info({ appId, targetId, selfId })
 
       let apiSelfId
       let apiTargetId
@@ -309,6 +307,7 @@ export default {
         sqlExpression.push('COMMIT;')
 
         await exec(sqlExpression.join('\n'))
+
         return
       }
 
@@ -319,7 +318,9 @@ export default {
         cateTargetId = Number(cateTargetId)
         // 仅改变分类
         if (!apiTargetId) {
-          return exec(`UPDATE api SET categoryId=${cateTargetId || 'NULL'} WHERE id=${apiSelfId};`)
+          exec(`UPDATE api SET categoryId=${cateTargetId || 'NULL'} WHERE id=${apiSelfId};`)
+          await history.api.move({ apiId: apiSelfId, operator, apiData: JSON.stringify({ category: [ cateSelfId, cateTargetId ] }) })
+          return
         }
 
         const apis = await all(`
@@ -365,8 +366,63 @@ export default {
 
         await exec(sqlExpression.join('\n'))
       }
+
+      const apiData = {}
+      if (cateMove) {
+        apiData.categroy = [ cateSelfId, cateTargetId ]
+      }
+
+      if (apiMove) {
+        apiData.api = [ apiSelfId, apiTargetId ]
+      }
+
+      await history.api.move({ apiId: apiSelfId, operator, apiData: JSON.stringify(apiData) })
     },
   },
 
+  api: {
+    async list ({ appId }) {
+      const rs = await all(`
+          SELECT id, name, categoryId, prevId, nextId FROM api WHERE appId = ${appId}
+      `)
 
+      const lg = rs.length
+      if (lg === 0) {
+        return { list: [] }
+      }
+
+      // previousId 实现链表指针关联
+      const map = {}
+      for (let i = 0; i < lg; i++) {
+        const item = rs[i]
+        map[item.id] = item
+      }
+
+      rs.forEach(item => {
+        item.next = map[item.nextId]
+        delete map[item.nextId]
+      })
+      // 剩下没被使用的就是最后一个节点了
+      for (const key in map) {
+        const newRs = []
+        let pointer = map[key]
+        while (pointer) {
+          newRs.push(pointer)
+          const cur = pointer
+          pointer = pointer.next
+
+          // 断开链表，回收无用属性
+          cur.next = undefined
+          cur.prevId = undefined
+          cur.nextId = undefined
+        }
+        return { list: newRs }
+      }
+
+      // const rs = await all(`
+      //     SELECT id, name, categoryId FROM api WHERE projectId = ${projectId}
+      // `)
+      // return rs
+    },
+  },
 }

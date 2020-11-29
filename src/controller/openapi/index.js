@@ -1,7 +1,7 @@
 import user from './user'
 import manager from './manager'
 import app from './app'
-// import role from './role'
+import history from './history'
 
 
 export default {
@@ -19,6 +19,7 @@ export default {
   user,
   manager,
   app,
+  history,
 
   // 404拦截
   '(.*.*)': {

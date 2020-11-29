@@ -18,8 +18,6 @@ export default {
     const method = METHOD_NUM[ctx.method]
     const { appId, 0: path } = ctx.params
 
-    console.info(ctx.params)
-
     if (!appId) {
       return ctx.body = { code: 500, message: '接口所在项目不存在' }
     }

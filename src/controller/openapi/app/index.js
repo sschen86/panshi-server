@@ -86,7 +86,7 @@ export default {
   api: {
     list: {
       async dispatcher ({ query: { appId } }) {
-        return api.list({ appId })
+        return app.api.list({ appId })
       },
     },
 
@@ -104,22 +104,22 @@ export default {
 
     create: {
       method: 'post',
-      async dispatcher ({ body }) {
-        await api.create(body)
+      async dispatcher ({ body, session: { userId } }) {
+        await api.create({ ...body, operator: userId })
       },
     },
 
     modify: {
       method: 'post',
-      async dispatcher ({ body }) {
-        await api.modify(body)
+      async dispatcher  ({ body, session: { userId } }) {
+        await api.modify({ ...body, operator: userId })
       },
     },
 
     delete: {
       method: 'post',
-      async dispatcher ({ body }) {
-        await api.delete(body)
+      async dispatcher ({ body, session: { userId } }) {
+        await api.delete({ ...body, operator: userId })
       },
     },
 
@@ -149,8 +149,8 @@ export default {
 
     move: {
       method: 'post',
-      async dispatcher ({ body: { appId, targetId, selfId } }) {
-        await app.category.move({ appId, targetId, selfId })
+      async dispatcher ({ body: { appId, targetId, selfId }, session: { userId } }) {
+        await app.category.move({ appId, targetId, selfId, operator: userId })
       },
     },
 

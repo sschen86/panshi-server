@@ -1,6 +1,8 @@
 import { all, get, insert, run, update, exec } from '@db'
 import DataX from '@shushu.pro/datax'
 import { match } from 'path-to-regexp'
+import history from '@/service/history'
+
 export default {
   async list ({ appId, page, pageSize }) {
     pageSize = Math.min(pageSize, 100)
@@ -11,20 +13,10 @@ export default {
     return { total: list.list, page: Number(page), pageSize, list }
   },
 
-  async detail ({ id, fully }) {
-    const data = await get(`
-        SELECT * FROM api WHERE id = ${id}
-    `)
-    if (data && fully) {
-      data.mockReqData = DataX.parse(data.reqData || '')
-      data.mockReqDoc = DataX.document(data.reqData || '')
-      data.mockResDoc = DataX.document(data.resData || '')
-    }
-    return data
-  },
+  detail: apiDetail,
 
   // 创建接口
-  async create ({ path, name, method, reqContextType, reqData, resData, appId, categoryId }) {
+  async create ({ path, name, method, reqContextType, reqData, resData, appId, categoryId, operator }) {
     // 获取链表尾
     const tailRecord = await get(`
         SELECT id FROM api WHERE appId=${appId} AND nextId IS NULL
@@ -32,9 +24,13 @@ export default {
 
     // 没有节点，直接插入数据
     if (!tailRecord) {
-      return insert('api', {
+      const { lastID } = await insert('api', {
         path, name, method, reqContextType, reqData, resData, appId, categoryId,
       })
+
+      await history.api.create({ apiId: lastID, operator })
+
+      return
     }
 
     const tailId = tailRecord.id
@@ -55,6 +51,7 @@ export default {
             UPDATE api SET nextId=${lastID} WHERE id=${tailId};
         `)
       await run('COMMIT;')
+      await history.api.create({ apiId: lastID, operator })
       updateMatchs({ id: lastID, type: 'add', value: path, method })
     } catch (e) {
       await run('ROLLBACK')
@@ -63,18 +60,30 @@ export default {
   },
 
   // 修改接口
-  async modify ({ id, path, name, method, description, reqContextType, reqData, resData, categoryId }) {
-    await update('api', { path, name, method, reqContextType, reqData, resData, categoryId, description: description || null }, `WHERE id = ${id}`)
+  async modify ({ id, path, name, method, description, reqContextType, reqData, resData, categoryId, operator }) {
+    const { changes } = await update('api', {
+      path, name, method, reqContextType, reqData, resData, categoryId, description: description || null,
+    }, `WHERE id = ${id}`)
+
+    if (changes) {
+      await history.api.modify({ apiId: id, operator, apiData: JSON.stringify(await apiDetail({ id })) })
+    }
+
     if (path) {
       updateMatchs({ id, type: 'update', value: path, method })
     }
   },
 
   // 删除接口
-  async delete ({ id }) {
+  async delete ({ id, operator }) {
     const selfRecord = await get(`
-      SELECT prevId, nextId FROM api WHERE id=${id}
+      SELECT * FROM api WHERE id=${id}
   `)
+
+    if (selfRecord) {
+      await history.api.delete({ apiId: id, operator, apiData: JSON.stringify(selfRecord) })
+    }
+
     const sqlExpression = [ 'BEGIN;', `DELETE FROM api WHERE id=${id};` ]
     // 需要改变它的nextId
     if (selfRecord.prevId) {
@@ -151,4 +160,16 @@ async function matchAPI ({ path, method, appId }) {
     return
   }
   return get(`SELECT * FROM api WHERE id=${apiId}`)
+}
+
+async function apiDetail ({ id, fully }) {
+  const data = await get(`
+      SELECT * FROM api WHERE id = ${id}
+  `)
+  if (data && fully) {
+    data.mockReqData = DataX.parse(data.reqData || '')
+    data.mockReqDoc = DataX.document(data.reqData || '')
+    data.mockResDoc = DataX.document(data.resData || '')
+  }
+  return data
 }

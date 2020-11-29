@@ -1,8 +1,7 @@
 import mockv from '@shushu.pro/mockv'
 import md5 from 'md5'
 import user from '@/service/user'
-import api from '@/service/api'
-
+import message from '@/service/message'
 export default {
 
 
@@ -34,7 +33,6 @@ export default {
       add: {
         method: 'post',
         async dispatcher ({ body: { apiId }, session: { userId } }) {
-          console.info({ userId, apiId })
           await user.favorite.api.add({ userId, apiId })
         },
       },
@@ -44,7 +42,29 @@ export default {
           await user.favorite.api.remove({ apiId, userId })
         },
       },
+      list: {
+        async dispatcher ({ query: { userId } }) {
+          return message.list({ userId })
+        },
+      },
     },
+  },
+
+  message: {
+    api: {
+      list: {
+        async dispatcher ({ session: { userId } }) {
+          return message.list({ userId })
+        },
+      },
+      delete: {
+        method: 'post',
+        async dispatcher ({ body: { id }, session: { userId } }) {
+          await message.delete({ id, userId })
+        },
+      },
+    },
+
   },
 
   // list: {

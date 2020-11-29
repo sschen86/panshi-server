@@ -101,7 +101,7 @@ export async function update (tableName, data, condition = '') {
    `
   // console.info({ sqlExpression })
 
-  await run(sqlExpression)
+  return await run(sqlExpression)
 }
 
 
