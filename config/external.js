@@ -11,6 +11,8 @@ export default (id, parentId) => {
 const external = [
   '@koa/router',
   '@shushu.pro/datax',
+  '@shushu.pro/mockv',
+  '@shushu.pro/adapter',
   'fs-extra',
   'koa',
   'koa-body',

@@ -4,7 +4,6 @@ import user from '@/service/user'
 import message from '@/service/message'
 export default {
 
-
   login: {
     method: 'post',
     async dispatcher ({ body, session }) {

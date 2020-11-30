@@ -1,11 +1,11 @@
 import resolve from '@rollup/plugin-node-resolve'
 import cjs from '@rollup/plugin-commonjs'
-import buble from '@rollup/plugin-buble'
+// import buble from '@rollup/plugin-buble'
 import json from '@rollup/plugin-json'
 // import { terser } from 'rollup-plugin-terser'
 // import node from 'rollup-plugin-node-builtins'
 // import nodeGlobals from 'rollup-plugin-node-globals'
-// import { babel } from '@rollup/plugin-babel'
+import { babel } from '@rollup/plugin-babel'
 import replace from '@rollup/plugin-replace'
 import alias from '@rollup/plugin-alias'
 import path from 'path'
@@ -51,6 +51,7 @@ export default {
         { find: '@db', replacement: resolvePath('./src/db') },
       ],
     }),
+    babel(),
     // babel({
     //     presets: [
     //         '@babel/preset-env',
@@ -58,14 +59,14 @@ export default {
     //     ],
     // }),
     json(),
-    buble({
-      objectAssign: 'Object.assign',
-      transforms: {
-        asyncAwait: false,
-        generator: false,
-        forOf: false,
-      },
-    }),
+    // buble({
+    //   objectAssign: 'Object.assign',
+    //   transforms: {
+    //     asyncAwait: false,
+    //     generator: false,
+    //     forOf: false,
+    //   },
+    // }),
 
     // node(),
     // nodeGlobals(),
