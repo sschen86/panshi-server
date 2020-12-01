@@ -1,11 +1,11 @@
 import adapter from './adapter'
 import openapi from './openapi'
 import mockapi from './mockapi'
-
+import config from '@/config'
 import xiniu from '@/package/xiniu/'
 
 export default xiniu({
-  baseURL: '/',
+  baseURL: config.server.baseURL,
   routes: {
     openapi,
     mockapi,

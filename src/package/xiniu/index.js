@@ -14,7 +14,7 @@ function xiniu ({ baseURL = '/', routes, authAccept, request, response, success,
     }
 
     const { method, path, dispatcher, auths } = route
-    // console.info({ path })
+
     router[method](path,
       allIntercepter(
         authIntercepter(dispatcher, authAccept, auths),
@@ -74,6 +74,7 @@ function walkRoutes (routes, baseURL) {
       case TYPE_ROUTE_ADD: {
         const { type, key, path, ...restRoute } = route
         const fullPath = baseURL + paths.concat(key).join('/')
+
         nextRoutes.push({
           path: fullPath,
           pathMatch: match(fullPath),
