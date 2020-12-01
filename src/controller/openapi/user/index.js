@@ -22,6 +22,12 @@ export default {
     loginIgnore: true,
   },
 
+  info: {
+    async dispatcher ({ session: { userId } }) {
+      return user.info({ userId })
+    },
+  },
+
   favorite: {
     api: {
       enabled: {

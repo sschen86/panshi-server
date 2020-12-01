@@ -1,13 +1,26 @@
 import { get, all, run, insert, exec, update } from '@db'
 import md5 from 'md5'
 import mockv from '@shushu.pro/mockv'
-import { remove } from 'fs-extra'
 
 export default {
   async login ({ userId, password }) {
     return get(`
         SELECT id,user,role,nick FROM user WHERE user='${userId}' AND password='${md5(password)}'
     `)
+  },
+
+  async info ({ userId }) {
+    const info = await get(`
+      SELECT id,user,role,nick FROM user WHERE id='${userId}'
+    `)
+
+    const { user } = info
+    const auths = []
+    if (user === 'shushu' || user === 'admin') {
+      auths.push('admin', 'role', 'user', 'app.create', 'app.modify')
+    }
+
+    return { info, auths }
   },
 
   async list ({ page, pageSize } = {}) {
