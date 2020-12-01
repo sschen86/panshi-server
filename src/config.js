@@ -9,6 +9,7 @@ const config = {
   server: {
     port: 1024,
     static: path.resolve(cwd, './static'),
+    baseURL: '/',
   },
 }
 
@@ -20,7 +21,7 @@ if (fs.existsSync(configPath)) {
       config.dbpath = path.resolve(cwd, dbpath)
     }
     if (server && typeof server === 'object') {
-      const { static: staticPath, port, fallback } = server
+      const { static: staticPath, port, fallback, baseURL } = server
 
       if (port) {
         config.server.port = port
@@ -32,6 +33,10 @@ if (fs.existsSync(configPath)) {
 
       if (fallback) {
         config.server.fallback = fallback
+      }
+
+      if (baseURL) {
+        config.server.baseURL = baseURL
       }
     }
   } catch (err) {

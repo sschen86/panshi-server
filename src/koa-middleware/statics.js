@@ -9,9 +9,6 @@ const sendConfig = {
 
 export default async function (ctx, next) {
   const path = ctx.path
-  if (/^\/(openapi|mockapi)\//.test(path)) {
-    return await next()
-  }
 
   await send(ctx, path, sendConfig).catch(err => {
     if (err.code === 'ENOENT' && err.status === 404) {
