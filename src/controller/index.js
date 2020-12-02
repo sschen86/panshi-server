@@ -13,7 +13,7 @@ export default xiniu({
   request ({ route, session, throwError, setRequestData }) {
     // 非免登接口，非登录用户
     if (!route.loginIgnore && !session.userId) {
-      throwError('用户未登录', 505)
+      throwError('用户未登录', 401)
     }
 
     const { requestData } = route

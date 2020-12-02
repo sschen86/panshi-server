@@ -74,6 +74,20 @@ export default {
     },
   },
 
+  password: {
+    async modify ({ userId, password, passwordNext }) {
+      const user = await get(`SELECT id FROM user WHERE id=${userId} AND password="${md5(password)}"`)
+      if (!user) {
+        throw Error('密码错误，修改失败')
+      }
+
+      await update('user', { password: md5(passwordNext) }, `WHERE id=${userId}`)
+    },
+    async reset ({ userId, password }) {
+      await update('user', { password: md5(password) }, `WHERE id=${userId}`)
+    },
+  },
+
   async create ({ user, nick = user }) {
     if (!/^\w{3,16}$/.test(user)) {
       throw Error('用户名不符合规范')

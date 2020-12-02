@@ -1,13 +1,15 @@
 import { all, get, insert, update, exec, list, run } from '@db'
 import history from '@/service/history'
 
-
 export default {
 
 
-  async list ({ page, pageSize }) {
+  async list ({ page, pageSize, userId }) {
     const list = await all(`
-      SELECT * FROM app
+      SELECT id, name, description FROM appMember
+      LEFT OUTER JOIN app
+      ON appMember.appId=app.id
+      WHERE appMember.userId=${userId}
   `)
     return { list }
   },

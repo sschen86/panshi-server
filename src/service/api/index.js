@@ -53,6 +53,7 @@ export default {
       await run('COMMIT;')
       await history.api.create({ apiId: lastID, operator })
       updateMatchs({ id: lastID, type: 'add', value: path, method })
+      return lastID
     } catch (e) {
       await run('ROLLBACK')
       throw e

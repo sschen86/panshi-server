@@ -49,7 +49,7 @@ export default {
       method: 'post',
       async dispatcher ({ body: { id } }) {
         const password = mockv.string(12)
-        await user.modify({ id, password: md5(password) })
+        await user.password.reset({ userId: id, password })
         return { password }
       },
     },

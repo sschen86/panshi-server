@@ -4,8 +4,8 @@ import api from '@/service/api'
 
 export default {
   list: {
-    async dispatcher ({ query: { page, pageSize } }) {
-      return app.list({ page, pageSize })
+    async dispatcher ({ query: { page, pageSize }, session: { userId } }) {
+      return app.list({ page, pageSize, userId })
     },
   },
 
@@ -105,7 +105,8 @@ export default {
     create: {
       method: 'post',
       async dispatcher ({ body, session: { userId } }) {
-        await api.create({ ...body, operator: userId })
+        const apiId = await api.create({ ...body, operator: userId })
+        return { apiId }
       },
     },
 

@@ -22,9 +22,29 @@ export default {
     loginIgnore: true,
   },
 
+  logout: {
+    method: 'post',
+    async dispatcher ({ session }) {
+      session.userId = null
+      session.name = null
+    },
+  },
+
   info: {
-    async dispatcher ({ session: { userId } }) {
+    async dispatcher ({ session: { userId }, throwError }) {
+      if (userId == null) {
+        throwError('用户未登录', 401)
+      }
       return user.info({ userId })
+    },
+  },
+
+  password: {
+    modify: {
+      method: 'post',
+      async dispatcher ({ body: { password, passwordNext }, session: { userId } }) {
+        await user.password.modify({ userId, password, passwordNext })
+      },
     },
   },
 
@@ -153,13 +173,6 @@ export default {
   //   },
   // },
 
-  // password: {
-  //   async modify () {
-
-  //   },
-
-
-  // },
 
   // password: {
   //   reset: {
