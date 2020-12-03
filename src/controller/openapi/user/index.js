@@ -15,7 +15,7 @@ export default {
       }
 
       session.userId = data.id
-      session.name = data.name
+      session.user = data.user
 
       return data
     },
