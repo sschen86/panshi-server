@@ -28,10 +28,21 @@ export default {
         return { list }
       },
 
-      async create ({ productId, parentId, label, symbol }) {
-        await insert('oc_spec_type', {
-          productId, parentId, label, symbol,
+      async create ({ productId, parentId, type, label, symbol, fields }) {
+        const { lastID: specTypeId } = await insert('oc_spec_type', {
+          productId, parentId, type, label, symbol,
         })
+
+        for (let i = 0; i < fields.length; i++) {
+          const { label, symbol } = fields[i]
+          await insert('oc_spec_fields', {
+            specTypeId, label, symbol,
+          })
+        }
+
+        // await insert('oc_spec_fields', {
+
+        // })
       },
 
       async modify ({ specId, label, symbol }) {

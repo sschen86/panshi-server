@@ -30,8 +30,8 @@ export default {
       },
       create: {
         method: 'post',
-        async dispatcher ({ body: { productId, parentId, label, symbol } }) {
-          await oc.spec.type.create({ productId, parentId, label, symbol })
+        async dispatcher ({ body: { productId, parentId, type, label, symbol, fields } }) {
+          await oc.spec.type.create({ productId, parentId, type, label, symbol, fields })
         },
       },
       modify: {
