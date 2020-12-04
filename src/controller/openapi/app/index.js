@@ -4,7 +4,10 @@ import api from '@/service/api'
 
 export default {
   list: {
-    async dispatcher ({ query: { page, pageSize }, session: { userId } }) {
+    async dispatcher ({ query: { page, pageSize }, session: { userId, user } }) {
+      if (user === 'shushu' || user === 'admin') {
+        userId = null
+      }
       return app.list({ page, pageSize, userId })
     },
   },
