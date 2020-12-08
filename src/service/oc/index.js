@@ -23,6 +23,7 @@ export default {
       async list ({ productId }) {
         const list = await all(`
             SELECT * FROM oc_spec_type 
+          
             WHERE productId=${productId}
         `)
         return { list }
@@ -33,12 +34,16 @@ export default {
           productId, parentId, type, label, symbol,
         })
 
-        for (let i = 0; i < fields.length; i++) {
-          const { label, symbol } = fields[i]
-          await insert('oc_spec_fields', {
-            specTypeId, label, symbol,
-          })
+        // 值类型需要存入字段
+        if (type === 'VALUE') {
+          for (let i = 0; i < fields.length; i++) {
+            const { label, symbol } = fields[i]
+            await insert('oc_spec_fields', {
+              specTypeId, label, symbol,
+            })
+          }
         }
+
 
         // await insert('oc_spec_fields', {
 
