@@ -41,11 +41,15 @@ export default {
         return { $error: responseData.$error.message }
       }
 
-      return responseData
+      return ctx.body = responseData
     },
   },
 
-  '(.*.*)': async function all ({ throwError }) {
-    throwError('接口未定义', 404)
+  '(.*.*)': {
+    method: 'all',
+    loginIgnore: true,
+    async dispatcher ({ throwError }) {
+      throwError('接口未定义', 404)
+    },
   },
 }

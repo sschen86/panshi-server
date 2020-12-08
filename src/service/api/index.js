@@ -30,7 +30,7 @@ export default {
 
       await history.api.create({ apiId: lastID, operator })
 
-      return
+      return lastID
     }
 
     const tailId = tailRecord.id
@@ -62,12 +62,13 @@ export default {
 
   // 修改接口
   async modify ({ id, path, name, method, description, reqContextType, reqData, resData, categoryId, operator }) {
+    const apiDataBefore = await apiDetail({ id })
     const { changes } = await update('api', {
       path, name, method, reqContextType, reqData, resData, categoryId, description: description || null,
     }, `WHERE id = ${id}`)
 
     if (changes) {
-      await history.api.modify({ apiId: id, operator, apiData: JSON.stringify(await apiDetail({ id })) })
+      await history.api.modify({ apiId: id, operator, typeData: JSON.stringify({ apiDataBefore, apiDataAfter: await apiDetail({ id }) }) })
     }
 
     if (path) {
