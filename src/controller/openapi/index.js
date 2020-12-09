@@ -6,15 +6,15 @@ import oc from './oc'
 
 export default {
   // 自动登录
-  '(.*)': {
-    method: 'all',
-    loginIgnore: true,
-    async dispatcher ({ ctx, next }) {
-      ctx.session.userId = 1
-      ctx.session.name = 'admin'
-      await next()
-    },
-  },
+  // '(.*)': {
+  //   method: 'all',
+  //   loginIgnore: true,
+  //   async dispatcher ({ ctx, next }) {
+  //     ctx.session.userId = 1
+  //     ctx.session.name = 'admin'
+  //     await next()
+  //   },
+  // },
 
   user,
   manager,

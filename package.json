@@ -1,6 +1,6 @@
 {
   "name": "panshi-server",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "main": "index.js",
   "author": "sschen86@163.com",
   "license": "MIT",
