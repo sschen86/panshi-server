@@ -3,13 +3,23 @@ import { all, get, insert, update, exec, list } from '@db'
 export default {
   async list ({ userId }) {
     const list = await all(`
-        SELECT  typeId as apiId, message.id, type,  api.appId, api.name, count(distinct typeId)  FROM message 
+        SELECT  typeId as apiId, message.id, type,  api.appId, api.name FROM message 
         LEFT OUTER JOIN operateHistory ON message.historyId=operateHistory.id
         LEFT OUTER JOIN api ON typeId=api.id
         WHERE userId=${userId}
     `)
 
-    return { list: list.reverse() }
+    // 过滤重复
+    const apiMap = {}
+    const nextList = list.filter(({ apiId }) => {
+      if (!apiMap[apiId]) {
+        apiMap[apiId] = true
+        return true
+      }
+      return false
+    }).reverse()
+
+    return { list: nextList }
   },
 
   async create ({ apiId, historyId }) {
